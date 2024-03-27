@@ -20,6 +20,7 @@ file(DOWNLOAD
     STATUS status_code
     LOG log_file
 )
+
 add_definitions(-DIMAGE1_PATH="${CMAKE_CURRENT_BINARY_DIR}/image.jpg")
 file(DOWNLOAD
     "https://tinyurl.com/2w6eh53v"
