@@ -7,6 +7,7 @@
 
 #include "layers/Shape.hpp"
 #include "layers/Tensor.hpp"
+#include "oneapi/tbb.h"
 
 namespace itlab_2023 {
 
@@ -18,8 +19,10 @@ enum LayerType {
   kElementWise,
   kConvolution,
   kFullyConnected,
-  kOutput,
+  kOutput
 };
+
+enum ImplType { kDefault, kTBB };
 
 class Layer {
  public:
