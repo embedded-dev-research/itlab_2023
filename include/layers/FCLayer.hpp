@@ -2,24 +2,26 @@
 #include <algorithm>
 #include <mutex>
 #include <stdexcept>
-#include <thread>
+#include <utility>
 #include <vector>
 
 #include "layers/Layer.hpp"
 
 namespace itlab_2023 {
 
+const size_t kDepth1 = 128;
+const size_t kDepth2 = 5;
+
 class FCLayer : public Layer {
  private:
   Tensor weights_;
   Tensor bias_;
+  ImplType implType_;
 
  public:
   FCLayer() = default;
-  FCLayer(const Tensor& weights, const Tensor& bias) {
-    weights_ = weights;
-    bias_ = bias;
-  }
+  FCLayer(Tensor weights, const Tensor& bias, ImplType implType = kDefault)
+      : weights_(std::move(weights)), bias_(bias), implType_(implType) {}
   static std::string get_name() { return "Fully-connected layer"; }
   void run(const Tensor& input, Tensor& output) override;
 #ifdef ENABLE_STATISTIC_WEIGHTS
@@ -50,6 +52,15 @@ std::vector<ValueType> mat_vec_mul(const std::vector<ValueType>& mat,
     }
   }
   return res;
+}
+
+template <typename ValueType>
+inline ValueType get_from(size_t i, size_t j, const std::vector<ValueType>& mat,
+                          const Shape& mat_shape) {
+  if (i < mat_shape[0] && j < mat_shape[1]) {
+    return mat[i * mat_shape[1] + j];
+  }
+  return ValueType(0);
 }
 
 template <typename ValueType>
@@ -88,7 +99,7 @@ class FCLayerImpl : public LayerImpl<ValueType> {
   std::vector<ValueType> run(
       const std::vector<ValueType>& input) const override;
 
- private:
+ protected:
   std::vector<ValueType> weights_;
   std::vector<ValueType> bias_;
 };
@@ -129,4 +140,5 @@ std::vector<ValueType> FCLayerImpl<ValueType>::run(
   }
   return output_values;
 }
+
 }  // namespace itlab_2023
